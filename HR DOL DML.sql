@@ -304,21 +304,71 @@ commit;
         - Foreign Key는 자식 테이블의 특정 컬럼에 넣는다.
 */
 
---employee 테이블의 
+--employee 테이블의 dno 컬럼은 foreign Key ====>Department 테이블의 dno 컬럼을 참조
+--employee 테이블의 dno 컬럼의 값을 할당할때 department 테이블의 dno 컬럼의 값을 참조후 할당
+
 select * from department;       --부서 정보를 저장하는 테이블(부모 테이블) dno
 select * from employee;         -- 사원 정보를 저장하는 테이블 (자식 테이블 : Foreign Key(dno))
 
+desc employee;
+--employee의 dno 컬럼은 department의 dno를 참조함
+
+insert int employee(eno, ename, job, manager, hiredate, salary, commission, dno)
+values(8000, 'PJW' , 'MANAGER',7369,sysdate, 1000, 100,40);
+
+select * from employee;
+rollback;
 
 
+/*Foreign Key 실습 테이블 생성*/
 
+--부모 테이블 생성(PK,UK)
 
+create table ParentTbl(
+    info number constraint PK_ParentTbl_info Primary Key,
+    name varchar2(20),
+    age number(3) check (age>0 and age <200),
+    gender char(1) check (gender in('W','M')) 
+);
 
+--부모테이블의 더미(Dumy) 데이터 넣기
+insert into ParentTbl(INFO, name, age, gender)
+values(10,'홍길동',22, 'M');
 
+insert into ParentTbl(INFO, name, age, gender)
+values(20,'이길동',32, 'M');
 
+insert into ParentTbl(INFO, name, age, gender)
+values(30,'김길동',42, 'M');
 
+insert into ParentTbl(INFO, name, age, gender)
+values(40,'송길동',52, 'M');
 
+commit;
 
+select * from ParentTbl;
 
+--자식 테이블 생성(FK)
+
+create table ChildTbl(
+id varchar2(40) constraint PK_ChildTbl Primary Key,
+pw varchar2(40),
+info number,
+constraint FK_ChildTbl_info foreign key(info) references ParentTbl(info)
+);
+
+--자식 테이블의 더미 데이터 입력
+insert into ChildTbl (id, pw,info)
+values('aaa','aaa',10);
+
+insert into ChildTbl (id, pw,info)
+values('bbb','aaa',10);
+
+insert into ChildTbl (id, pw,info)
+values('ccc','aaa',30);
+
+insert into ChildTbl (id, pw,info)
+values('ddd','aaa',40);
 
 
 
