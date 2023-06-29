@@ -46,6 +46,9 @@ select * from Salgrade;         -- 연봉에 대한 등급이 저장됨
  HAVING 조건(그룹핑한 결과의 조건)
  ORDER BY 컬럼명 (정렬할 컬럼명)
  
+ /*테이블의 구조를 확인*/
+ desc employee;
+ 
  /*기본 Select */
 -- 모든 컬럼 출력 하기
 select * from employee;
@@ -67,7 +70,7 @@ from employee;
  from employee;
  
  -- WHERE 조건사용하기 
-select * from employee 
+select * from employee; 
 
 -- 이름이 JAMES 인 사원의 이름과 직책, 입사월  부서번호 출력 하기
 -- select , SELECT, FROM,from, WHERE, where
@@ -121,7 +124,7 @@ where salary >=1500 and dno = 30;
 -- 테이블 구조 확인
 desc employee;
 
-select * from employee
+select * from employee;
 
 -- NUMBER : 정수, 실수, 값을 가져올때 ''를 붙이면 안됨
 -- CHAR, VARCHAR2, DATE 값을 가져올때 ''를 붙여야 함
@@ -240,7 +243,7 @@ from employee;
 --전체 연봉을 계산해서 이름, 직책, 월급, 보너스, 총연봉
 select ename as 이름, job as 직책, salary as 월급, commission as 보너스, 
         salary * 12 + commission as 총연봉
-from employee
+from employee;
 
 -- NVL 함수를 사용해서 commission 컬럼의 null 을 0으로 대치후 계산후 연봉이 많은 순으로 출력
 select ename as 이름, job as 직책, salary as 월급, commission as 보너스, 
@@ -269,16 +272,153 @@ order by hiredate desc;
 -- count 함수는 null을 카운트 하지 않는다.
 -- 특정 컬럼의 평균을 구할때, null 을 카운트 할지 카운트 하지 않을지를 지정해야 한다.
 
+-- count(*) : 전체 레코드수를 출력
+
 select count(*) as "전체 레코드수"
 from employee;
 
+--not null 컬럼을 count 해야 전체레코드를 제대로 출력 할 수 있다.
+select count(eno)
+from employee;
+
+-- 특정 컬럼을 카운트 할때 null 허용된 컬럼인 경우 null은 카운트 되지 않는다.
 select count(commission) as "레코드수"
 from employee;
 
+-- employee 테이블의 컬럼의 null 허용 여부, 자료형 (number(n), char(n) ,varchar2(n), date)
+desc employee;
 
 
+select * from employee;
+/*order by 에서 두개 이상의 컬럼이 정렬 될때*/
+select *
+from employee
+order by job asc;
+--job asc, ename desc
+--두개 이상의 컬럼이 정렬될때, job 컬럼을 정렬 후,job 컬럼의 중복된 값에 대해서 ename desc 정렬됨
+select *
+from employee
+order by job asc, ename desc;
+/*
+<문제1> 컬럼 알리어스(별칭) , commission(보너스) 
+ 컬럼의 null 인 값만 출력하되 사원번호, 사원이름,입사날짜를 출력 
+*/
+
+select eno as 사원번호, ename as 사원이름, hiredate as 입사날짜 , commission 보너스
+from employee
+where commission is null;
+
+/*<문제2> dno(부서번호) 가 20이고 
+입사날짜가 81년 4월 이후 사원의 이름과 직책과 입사날짜를 출력*/
+
+-- 내가 푼거
+
+select ename as 이름, job as 직책, hiredate as 입사날짜
+from employee
+where dno like '20%' and hiredate>'81/04/01'
+order by hiredate desc;
+
+-- 문제 풀이
+select ename as "사원 이름",job as 직책,hiredate as 입사날짜, dno 부서번호
+from employee
+where dno =20 and hiredate>='81/04/01';
+
+/*<문제3> 연봉을 계산해서 사원번호, 
+사원이름, 월급, 보너스, 전체 연봉을 출력*/
+
+--내가 푼거
+
+select eno as 사원번호, ename as 이름, salary as 월급, commission as 보너스,
+salary*12 + commission as 총연봉
+from employee;
+
+--다른 풀이
+
+select eno 사원번호, ename as 사원이름, salary 월급, commission 보너스,
+salary*12 + NVL(commission,0) 전체연봉
+from employee
+
+desc employee;
 
 
+/*<문제4> commission이 null 이 아닌 사용자의 이름만 출력 */
+-- 내가 푼거(틀림)
+select eno as 사원번호, ename as 이름, salary as 월급, commission as 보너스,
+salary*12 + NVl(commission,0) as 총연봉
+from employee
 
 
+-- 다른 풀이(정답)
 
+select ename as 이름
+from employee
+where commission is not null;
+
+/*<문제5> manager (직급상사) 7698 인 사원이름과 직책을 출력.*/
+select ename as 사원이름, job as 직책
+from employee
+where manager = '7698';
+
+select ename 사원이름, job as 직책, manager 직급상사
+from employee
+where manager = 7698;
+
+<문제6> 월급이 1500 이상이고 부서가 20인 사원의 
+사원이름과 입사날짜, 부서번호, 월급을 출력
+
+select ename as 사원이름, hiredate as 입사날짜, dno as 부서번호, salary as 월급
+from employee
+where salary >=1500 and dno =20;
+
+<문제7> 입사날짜가 81년 4월 1일 이상이고 
+81년 12월 말일까지인 사원 이름과 입사날짜을 출력
+
+select ename as 사원이름, hiredate as 입사날짜
+from employee
+where hiredate between '81/04/01' and '81/12/31';
+
+--다른 풀이
+
+select ename as 사원이름, hiredate as 입사날짜
+from employee
+where hiredate>='81/04/01' and hiredate<= '81/12/31';
+
+
+<문제8> 직책(job) salesman 이면서 연봉이 1500 이상이면서 
+부서번호가 30인 사원명을 출력
+
+-- 내가 푼거
+select ename as 사원이름
+from employee
+where job = 'SALESMAN' and dno=30 and salary>=1500;
+
+-- 다른 풀이
+select ename as 사원명, salary * 12 + NVL(commission,0) as 연봉, job 직책
+from employee
+where job = UPPER('salesman') and salary * 12 + NVL(commission,0) >1500
+order by 연봉 desc;
+
+/*where 절에서 별칭이름을 사용하면 오류발생
+order by 절에서는 별칭 이름 사용 가능
+*/
+
+<문제9> 월급이 1500 이하이면서 부서번호가 20번 이 아닌 사원이름과,
+월급과, 부서번호를 출력
+
+select ename as 사원이름, salary as 월급, dno as 부서번호
+from employee
+where salary <=1500 and dno <> 20;
+
+--다른 풀이
+
+select ename as 사원이름, salary as 월급, dno as 부서번호
+from employee
+where salary <=1500 and dno!=20
+order by 월급 desc;
+/*<문제10> 사원번호(eno) 가 7788, 7782 인 부서번호와 
+이름과 직책을 출력 */
+
+select ename as 사원이름, job as 직책, dno as 부서번호, eno as 사원번호
+from employee
+where eno = 7788 or eno =7782;
+--where eno IN(7788,7782);
