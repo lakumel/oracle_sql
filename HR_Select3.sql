@@ -11,6 +11,7 @@
         YYYY:날짜 정보의 년도를 뽑아냄
         YY: 년도의 마지막 2자리 뽑아옴
         MM : 월
+        MON : 
         DD : 일
         
         DAY : 요일을 뽑아옴(월요일, 화요일,....일요일)
@@ -87,6 +88,7 @@ trunc(months_between(to_date('2030/01/01','YYYY/MM/DD'),hiredate)) as "특정날짜�
 from employee
 
 --null 처리 함수:NAL, NVL2,NULLIF
+
 /*
     NVL(컬럼, 값) : 컬럼에 NULL이 존재할 경우 값으로 대치
     NVL2(컬럼명,null이 아닐경우 처리, null경우처리블락)
@@ -112,6 +114,9 @@ where 조건
 group by 컬럼명[그룹핑할컬럼명]
 having 조건[그룹핑한결과의조건]
 order by 컬럼명[정렬할컬럼명]
+
+
+
 
 /*집계 함수 : SUM,AVG,COUNT,MAX,MIN     <==null을 자동으로 처리해서 작동됨 
    NUMBER 타입에서만 사용 가능
@@ -223,22 +228,28 @@ where hiredate like '81%';
 
 --rollup, cube를 사용하지 않는 그룹핑 쿼리
 
+--groupup by 절에서 컬럼 2개가 그룹핑 될때 두 컬럼에 컬쳐서 중복을 그룹핑
+
 select sum(salary), round(avg(salary))as 평균, max(salary), min(salary), dno, count(*)
 from employee
 group by dno
 order by dno asc;
 
+select dno, job 
+from employee
+order by dno asc, job asc;
+
 --rollup을 사용
 
 select sum(salary), round(avg(salary))as 평균, max(salary), min(salary), dno, count(*)
 from employee
-group by rollup (dno)
+group by rollup (dno,job)
 order by dno asc;
 
 --cube를 사용
-select sum(salary), round(avg(salary))as 평균, max(salary), min(salary), dno, count(*)
+select sum(salary), round(avg(salary))as 평균, max(salary), min(salary), dno,job, count(*)
 from employee
-group by cube (dno)
+group by cube (dno,job)
 order by dno asc;
 
 /*SubQuery(서브 쿼리) : Select 내부의 select 구문, 여러번 작업을 하나의 쿼리에서 실행
